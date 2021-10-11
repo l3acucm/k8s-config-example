@@ -1,0 +1,165 @@
+apiVersion: v1
+kind: List
+items:
+  - apiVersion: networking.k8s.io/v1
+    kind: Ingress
+    metadata:
+      name: wts-guru-ingress
+    spec:
+      rules:
+        - http:
+            paths:
+              - path: /admin
+                pathType: Prefix
+                backend:
+                  service:
+                    name: wts-guru-backend-service
+                    port:
+                      number: 80
+              - path: /api
+                pathType: Prefix
+                backend:
+                  service:
+                    name: wts-guru-backend-service
+                    port:
+                      number: 80
+              - path: /staticfiles
+                pathType: Prefix
+                backend:
+                  service:
+                    name: wts-guru-backend-service
+                    port:
+                      number: 80
+              - path: /media
+                pathType: Prefix
+                backend:
+                  service:
+                    name: wts-guru-backend-service
+                    port:
+                      number: 80
+              - path: /
+                pathType: Prefix
+                backend:
+                  service:
+                    name: wts-guru-frontend-service
+                    port:
+                      number: 80
+
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      name: wts-guru-backend-service
+    spec:
+      ports:
+        - port: 80
+          targetPort: 8000
+      selector:
+        app: wts-guru
+      type: LoadBalancer
+
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      name: wts-guru-frontend-service
+    spec:
+      ports:
+        - port: 80
+          targetPort: 5000
+      selector:
+        app: wts-guru
+      type: LoadBalancer
+  - apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: wts-guru-backend-deployment
+      labels:
+        keel.sh/policy: force
+    spec:
+      replicas: 2
+      minReadySeconds: 15
+      strategy:
+        type: RollingUpdate
+        rollingUpdate:
+          maxUnavailable: 25%
+          maxSurge: 1
+      selector:
+        matchLabels:
+          app: wts-guru
+      template:
+        metadata:
+          labels:
+            app: wts-guru
+        spec:
+          imagePullSecrets:
+            - name: regcred
+          containers:
+            - name: backend
+              image: zuber93/wts-guru-backend:latest
+              imagePullPolicy: Always
+              envFrom:
+                - secretRef:
+                    name: wts-guru-backend-secret
+              ports:
+                - containerPort: 8000
+              readinessProbe:
+                httpGet:
+                  path: /api/accounts/is_mfa_enabled_for_phone_number/
+                  port: 8000
+                  httpHeaders:
+                    - name: Host
+                      value: k8s.wts.guru
+                initialDelaySeconds: 10
+                periodSeconds: 5
+            - name: celery
+              image: zuber93/wts-guru-backend:latest
+              imagePullPolicy: Always
+              workingDir: /code
+              command: [ "/code/run/celery.sh" ]
+              envFrom:
+                - secretRef:
+                    name: wts-guru-backend-secret
+            - name: redis
+              image: redis:latest
+              imagePullPolicy: IfNotPresent
+  - apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: wts-guru-frontend-deployment
+      labels:
+        keel.sh/policy: force
+    spec:
+      replicas: 2
+      minReadySeconds: 15
+      strategy:
+        type: RollingUpdate
+        rollingUpdate:
+          maxUnavailable: 25%
+          maxSurge: 1
+      selector:
+        matchLabels:
+          app: wts-guru
+      template:
+        metadata:
+          labels:
+            app: wts-guru
+        spec:
+          imagePullSecrets:
+            - name: regcred
+          containers:
+            - name: frontend
+              image: zuber93/wts-guru-frontend:latest
+              imagePullPolicy: Always
+              envFrom:
+                - secretRef:
+                    name: wts-guru-frontend-secret
+              ports:
+                - containerPort: 5000
+              readinessProbe:
+                httpGet:
+                  path: /
+                  port: 5000
+                  httpHeaders:
+                    - name: Host
+                      value: k8s.wts.guru
+                initialDelaySeconds: 10
+                periodSeconds: 5
