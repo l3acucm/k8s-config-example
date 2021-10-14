@@ -96,6 +96,8 @@ items:
             - name: backend
               image: zuber93/wts-guru-backend:latest
               imagePullPolicy: Always
+              workingDir: /code
+              command: [ "/code/run/uwsgi.sh" ]
               envFrom:
                 - secretRef:
                     name: wts-guru-backend-secret
