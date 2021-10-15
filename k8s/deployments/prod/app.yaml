@@ -5,6 +5,8 @@ items:
     kind: Ingress
     metadata:
       name: wts-guru-ingress
+      annotations:
+        nginx.ingress.kubernetes.io/proxy-body-size: 2m
     spec:
       rules:
         - http:
