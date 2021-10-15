@@ -111,7 +111,7 @@ items:
                   port: 8000
                   httpHeaders:
                     - name: Host
-                      value: k8s.wts.guru
+                      value: wts.guru
                 initialDelaySeconds: 10
                 periodSeconds: 5
             - name: celery
@@ -164,6 +164,6 @@ items:
                   port: 5000
                   httpHeaders:
                     - name: Host
-                      value: k8s.wts.guru
+                      value: wts.guru
                 initialDelaySeconds: 10
                 periodSeconds: 5
