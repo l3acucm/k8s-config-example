@@ -8,6 +8,7 @@ items:
       annotations:
         nginx.ingress.kubernetes.io/proxy-body-size: 2m
     spec:
+      ingressClassName: nginx
       rules:
         - http:
             paths:

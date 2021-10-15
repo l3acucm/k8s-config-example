@@ -10,7 +10,7 @@ kubectl create secret generic regcred \
     --from-file=.dockerconfigjson=/home/zuber/.docker/config.json \
     --type=kubernetes.io/dockerconfigjson
 
-kubectl create -f secrets/dev/backend.yaml
+kubectl create -f secrets/backend.yaml
 
 helm upgrade --install webhookrelay-operator webhookrelay/webhookrelay-operator \
   --set credentials.key=$RELAY_KEY --set credentials.secret=$RELAY_SECRET
