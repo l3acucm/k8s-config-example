@@ -12,9 +12,8 @@ kubectl create secret generic regcred \
 
 kubectl create -f secrets/backend.yaml
 
-helm upgrade --install webhookrelay-operator webhookrelay/webhookrelay-operator \
-  --set credentials.key=$RELAY_KEY --set credentials.secret=$RELAY_SECRET
-  
+helm upgrade --install webhookrelay-operator webhookrelay/webhookrelay-operator --set credentials.key=$RELAY_KEY --set credentials.secret=$RELAY_SECRET
+
 helm upgrade --install keel keel/keel --set helmProvider.enabled="false" --set service.enabled="true" --set service.type="ClusterIP"
 
 kubectl create -f cd/prod/cd.yaml
