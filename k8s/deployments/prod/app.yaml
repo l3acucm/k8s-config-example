@@ -47,7 +47,6 @@ items:
                     name: wts-guru-frontend-service
                     port:
                       number: 80
-
   - apiVersion: v1
     kind: Service
     metadata:
@@ -59,7 +58,6 @@ items:
       selector:
         app: wts-guru
       type: LoadBalancer
-
   - apiVersion: v1
     kind: Service
     metadata:
